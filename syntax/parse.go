@@ -65,6 +65,7 @@ const (
 	UnicodeGroups                   // allow \p{Han}, \P{Han} for Unicode group and negation
 	WasDollar                       // regexp OpEndText was $, not \z
 	Simple                          // regexp contains no counted repetition
+	NoFactor                        // not extract perform factor optimization for alternate
 
 	MatchNL = ClassNL | DotNL
 
@@ -560,7 +561,9 @@ func (p *parser) collapse(subs []*Regexp, op Op) *Regexp {
 		}
 	}
 	if op == OpAlternate {
-		re.Sub = p.factor(re.Sub)
+		if p.flags&NoFactor == 0 {
+			re.Sub = p.factor(re.Sub)
+		}
 		if len(re.Sub) == 1 {
 			old := re
 			re = re.Sub[0]
